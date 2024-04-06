@@ -492,6 +492,17 @@ func GetPasswordToken(application *Application, username string, password string
 		}, nil
 	}
 
+	// check user's tag
+	if len(application.Tags) > 0 {
+		// only users with the tag that is listed in the application tags can login
+		if !util.InSlice(application.Tags, user.Tag) {
+			return nil, &TokenError{
+				Error:            InvalidGrant,
+				ErrorDescription: "access denied",
+			}, nil
+		}
+	}
+
 	if user.Ldap != "" {
 		err = checkLdapUserPassword(user, password, "en")
 	} else {
